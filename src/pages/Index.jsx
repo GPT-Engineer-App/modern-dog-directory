@@ -90,7 +90,7 @@ const Index = () => {
         <Button leftIcon={<FaSearch />} colorScheme="blue">
           Search
         </Button>
-        <Button leftIcon={<FaPlus />} colorScheme="green" onClick={onOpen}>
+        <Button leftIcon={<FaPlus />} colorScheme="purple" onClick={onOpen}>
           Add Dog
         </Button>
       </HStack>
