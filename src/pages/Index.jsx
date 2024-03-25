@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Box, Heading, Text, VStack, HStack, Image, Input, Button, Select, Grid, GridItem, useColorModeValue } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack, HStack, Image, Input, Button, Select, Grid, GridItem, useColorModeValue, useDisclosure } from "@chakra-ui/react";
 import { FaSearch, FaPlus } from "react-icons/fa";
+import DogForm from "../components/DogForm";
 
 const characteristics = [
   { name: "Size", options: ["Small", "Medium", "Large"] },
@@ -55,6 +56,8 @@ const dogBreeds = [
 const Index = () => {
   const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [dogs, setDogs] = useState(dogBreeds);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleFilterChange = (characteristic, value) => {
     setFilters((prevFilters) => ({
@@ -63,7 +66,11 @@ const Index = () => {
     }));
   };
 
-  const filteredDogs = dogBreeds.filter((dog) => {
+  const handleAddDog = (newDog) => {
+    setDogs((prevDogs) => [...prevDogs, newDog]);
+  };
+
+  const filteredDogs = dogs.filter((dog) => {
     const searchMatch = searchTerm === "" || dog.name.toLowerCase().includes(searchTerm.toLowerCase());
 
     const filterMatch = Object.entries(filters).every(([characteristic, value]) => dog[characteristic.toLowerCase()] === value);
@@ -82,6 +89,9 @@ const Index = () => {
         <Input placeholder="Search by breed" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         <Button leftIcon={<FaSearch />} colorScheme="blue">
           Search
+        </Button>
+        <Button leftIcon={<FaPlus />} colorScheme="green" onClick={onOpen}>
+          Add Dog
         </Button>
       </HStack>
       <HStack spacing={8} mb={8}>
@@ -120,6 +130,7 @@ const Index = () => {
           ))}
         </Grid>
       )}
+      <DogForm isOpen={isOpen} onClose={onClose} onSubmit={handleAddDog} characteristics={characteristics} />
     </Box>
   );
 };
