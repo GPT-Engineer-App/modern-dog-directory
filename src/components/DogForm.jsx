@@ -18,9 +18,24 @@ const DogForm = ({ isOpen, onClose, onSubmit, characteristics, breeds }) => {
     }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(newDog);
-    onClose();
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`https://api.thedogapi.com/v1/images/search?breed_ids=${newDog.breed}&limit=1`, {
+        headers: {
+          "x-api-key": "YOUR_API_KEY_HERE",
+        },
+      });
+      const data = await response.json();
+      const imageUrl = data[0]?.url;
+
+      onSubmit({
+        ...newDog,
+        image: imageUrl,
+      });
+      onClose();
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
   };
 
   return (
