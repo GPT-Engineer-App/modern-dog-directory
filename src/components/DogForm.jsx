@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, VStack } from "@chakra-ui/react";
 
-const DogForm = ({ isOpen, onClose, onSubmit, characteristics }) => {
+const DogForm = ({ isOpen, onClose, onSubmit, characteristics, breeds }) => {
   const [newDog, setNewDog] = useState({
     name: "",
     image: "",
@@ -31,6 +31,17 @@ const DogForm = ({ isOpen, onClose, onSubmit, characteristics }) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4}>
+            <FormControl>
+              <FormLabel>Breed</FormLabel>
+              <Select name="breed" value={newDog.breed} onChange={handleChange}>
+                <option value="">Select Breed</option>
+                {breeds.map((breed) => (
+                  <option key={breed.id} value={breed.name}>
+                    {breed.name}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
             <FormControl>
               <FormLabel>Name</FormLabel>
               <Input name="name" value={newDog.name} onChange={handleChange} />

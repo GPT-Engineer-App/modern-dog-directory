@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Heading, Text, VStack, HStack, Image, Input, Button, Select, Grid, GridItem, useColorModeValue, useDisclosure } from "@chakra-ui/react";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import DogForm from "../components/DogForm";
@@ -57,7 +57,15 @@ const Index = () => {
   const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [dogs, setDogs] = useState(dogBreeds);
+  const [breeds, setBreeds] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    fetch("https://api.thedogapi.com/v1/breeds")
+      .then((response) => response.json())
+      .then((data) => setBreeds(data))
+      .catch((error) => console.error(error));
+  }, []);
 
   const handleFilterChange = (characteristic, value) => {
     setFilters((prevFilters) => ({
@@ -130,7 +138,7 @@ const Index = () => {
           ))}
         </Grid>
       )}
-      <DogForm isOpen={isOpen} onClose={onClose} onSubmit={handleAddDog} characteristics={characteristics} />
+      <DogForm isOpen={isOpen} onClose={onClose} onSubmit={handleAddDog} characteristics={characteristics} breeds={breeds} />
     </Box>
   );
 };
