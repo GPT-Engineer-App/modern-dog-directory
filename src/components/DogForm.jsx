@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, VStack } from "@chakra-ui/react";
 
 const DogForm = ({ isOpen, onClose, onSubmit, characteristics, breeds }) => {
@@ -18,24 +18,43 @@ const DogForm = ({ isOpen, onClose, onSubmit, characteristics, breeds }) => {
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch(`https://api.thedogapi.com/v1/images/search?breed_ids=${newDog.breed}&limit=1`, {
-        headers: {
-          "x-api-key": "YOUR_API_KEY_HERE",
-        },
-      });
-      const data = await response.json();
-      const imageUrl = data[0]?.url;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredBreeds, setFilteredBreeds] = useState([]);
 
-      onSubmit({
-        ...newDog,
-        image: imageUrl,
-      });
-      onClose();
+  useEffect(() => {
+    setFilteredBreeds(
+      breeds.filter((breed) =>
+        breed.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [searchTerm, breeds]);
+
+  const handleBreedChange = async (e) => {
+    const selectedBreedId = e.target.value;
+    setNewDog((prevDog) => ({
+      ...prevDog,
+      breed: selectedBreedId,
+    }));
+
+    try {
+      const response = await fetch(`https://api.thedogapi.com/v1/breeds/${selectedBreedId}`);
+      const data = await response.json();
+      setNewDog((prevDog) => ({
+        ...prevDog,
+        name: data.name,
+        size: data.height.metric,
+        coat: data.coat,
+        energy: data.energy_level,
+        trainability: data.trainability,
+      }));
     } catch (error) {
-      console.error("Error fetching image:", error);
+      console.error("Error fetching breed details:", error);
     }
+  };
+
+  const handleSubmit = () => {
+    onSubmit(newDog);
+    onClose();
   };
 
   return (
@@ -47,11 +66,15 @@ const DogForm = ({ isOpen, onClose, onSubmit, characteristics, breeds }) => {
         <ModalBody>
           <VStack spacing={4}>
             <FormControl>
-              <FormLabel>Breed</FormLabel>
-              <Select name="breed" value={newDog.breed} onChange={handleChange}>
-                <option value="">Select Breed</option>
-                {breeds.map((breed) => (
-                  <option key={breed.id} value={breed.name}>
+              <FormLabel>Search Breed</FormLabel>
+              <Input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search breed..." />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Select Breed</FormLabel>
+              <Select name="breed" value={newDog.breed} onChange={handleBreedChange}>
+                <option value="">Select a breed</option>
+                {filteredBreeds.map((breed) => (
+                  <option key={breed.id} value={breed.id}>
                     {breed.name}
                   </option>
                 ))}
